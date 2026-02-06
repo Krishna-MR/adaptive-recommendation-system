@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Saved Articles</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <h2>Saved Articles</h2>
+    <a href="/home/{{ username }}">⬅ Back to Home</a>
+</div>
+
+<div class="container">
+    {% if articles %}
+        {% for article in articles %}
+        <div class="card">
+            <span class="category">{{ article[2] }}</span>
+            <h3>{{ article[0] }}</h3>
+            <a href="{{ article[1] }}" target="_blank">Read article</a>
+            <p style="font-size:12px;color:gray;">
+                Saved on {{ article[3] }}
+            </p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No saved articles yet.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
+

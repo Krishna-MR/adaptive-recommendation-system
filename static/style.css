@@ -1,0 +1,47 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+}
+
+.navbar {
+    background-color: #1a73e8;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.container {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.category {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 12px;
+}
+
+.tech { background-color: #673ab7; }
+.sports { background-color: #4caf50; }
+.health { background-color: #f44336; }
+
+button {
+    margin-right: 10px;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.general { background-color: #607d8b; }
+.entertainment { background-color: #ff9800; }

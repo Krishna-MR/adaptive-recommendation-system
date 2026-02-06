@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home | Adaptive Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <h2>Adaptive Recommendation System</h2>
+
+        <!-- SEARCH BAR -->
+        <form method="GET" action="/search" class="search-form">
+            <input type="text" name="q" placeholder="Search news, topics..." required>
+            <button type="submit">🔍</button>
+        </form>
+
+        <a href="/saved/{{ username }}">🔖 Saved</a>
+        <span>Welcome, {{ username }}</span>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+        {% for article in articles %}
+        <div class="card">
+
+            {% if article.image %}
+            <img src="{{ article.image }}" style="width:100%; border-radius:8px;">
+            {% endif %}
+
+            <span class="category {{ article.category }}">
+                {{ article.category | capitalize }}
+            </span>
+
+            <h3>{{ article.title }}</h3>
+            <p>{{ article.description }}</p>
+
+            <a href="{{ article.url }}" target="_blank">Read more</a>
+
+            <br><br>
+
+            <!-- FEEDBACK BUTTONS -->
+            <form method="POST" action="/feedback">
+                <input type="hidden" name="user_id" value="{{ user_id }}">
+                <input type="hidden" name="category" value="{{ article.category }}">
+                <input type="hidden" name="action" value="like">
+                <button type="submit">👍 Interested</button>
+            </form>
+
+            <form method="POST" action="/feedback">
+                <input type="hidden" name="user_id" value="{{ user_id }}">
+                <input type="hidden" name="category" value="{{ article.category }}">
+                <input type="hidden" name="action" value="dislike">
+                <button type="submit">👎 Not Interested</button>
+            </form>
+
+            <!-- SAVE ARTICLE -->
+            <form method="POST" action="/save">
+                <input type="hidden" name="user_id" value="{{ user_id }}">
+                <input type="hidden" name="title" value="{{ article.title }}">
+                <input type="hidden" name="url" value="{{ article.url }}">
+                <input type="hidden" name="category" value="{{ article.category }}">
+                <button type="submit">🔖 Save</button>
+            </form>
+
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- LOAD MORE -->
+    <a href="/home/{{ username }}?page={{ page + 1 }}">
+        <button style="width:100%">Load More</button>
+    </a>
+
+</body>
+</html>

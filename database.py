@@ -30,15 +30,16 @@ def init_db():
         )
     """)
 
-    # USER PREFERENCES (Q-VALUES)
+    # USER PREFERENCES (Q-VALUES + INTERACTION COUNT)
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS preferences (
-            user_id INTEGER,
-            category TEXT,
-            score REAL DEFAULT 0,
-            PRIMARY KEY (user_id, category)
-        )
-    """)
+    CREATE TABLE IF NOT EXISTS preferences (
+        user_id INTEGER,
+        category TEXT,
+        score REAL DEFAULT 0,
+        interactions INTEGER DEFAULT 0,
+        PRIMARY KEY (user_id, category)
+    )
+""")
 
     # SAVED ARTICLES
     cur.execute("""
@@ -48,6 +49,16 @@ def init_db():
             title TEXT,
             url TEXT,
             category TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # REWARD LOG TABLE
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS reward_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            reward INTEGER,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -112,15 +123,17 @@ def update_preference(user_id, category, reward, alpha=0.1):
     )
 
     row = cur.fetchone()
-    old_score = row[0] if row else 0
-    new_score = old_score + alpha * reward
+    old_q = row[0] if row else 0
+
+    # 🔹 True Q-learning update
+    new_q = old_q + alpha * (reward - old_q)
 
     cur.execute("""
         INSERT INTO preferences (user_id, category, score)
         VALUES (?, ?, ?)
         ON CONFLICT(user_id, category)
         DO UPDATE SET score=?
-    """, (user_id, category, new_score, new_score))
+    """, (user_id, category, new_q, new_q))
 
     conn.commit()
     conn.close()
@@ -155,4 +168,48 @@ def get_saved_articles(user_id):
 
     return articles
 
+
+def get_global_category_scores():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT category, COUNT(*) as count
+        FROM interactions
+        WHERE action = 'like'
+        GROUP BY category
+    """)
+
+    data = cur.fetchall()
+    conn.close()
+
+    return {category: count * 0.2 for category, count in data}
+
+
+def log_reward(user_id, reward):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO reward_log (user_id, reward) VALUES (?, ?)",
+        (user_id, reward)
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def get_reward_history(user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT reward FROM reward_log WHERE user_id=?",
+        (user_id,)
+    )
+
+    rewards = [r[0] for r in cur.fetchall()]
+    conn.close()
+
+    return rewards
 

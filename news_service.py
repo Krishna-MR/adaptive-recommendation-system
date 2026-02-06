@@ -13,10 +13,11 @@ CATEGORY_KEYWORDS = {
     "science": "science research innovation"
 }
 
-def get_news(category="general", page=1, page_size=10):
+
+def get_news(search_query, page=1, page_size=10):
     params = {
         "apiKey": API_KEY,
-        "q": CATEGORY_KEYWORDS.get(category, "news"),
+        "q": search_query,
         "language": "en",
         "sortBy": "publishedAt",
         "page": page,
@@ -35,7 +36,9 @@ def get_news(category="general", page=1, page_size=10):
                 "description": item.get("description"),
                 "url": item.get("url"),
                 "image": item.get("urlToImage"),
-                "category": category
+                "category": search_query
             })
 
     return articles
+
+
